@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input {
+            padding: 10px;
+            width: 200px;
+        }
+        button {
+            padding: 10px;
+        }
+        .forecast, .current-weather {
+            margin-top: 20px;
+        }
+        .day, .current {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weather Forecast</h1>
+    <input type="text" id="city" placeholder="Enter city name" />
+    <button onclick="getForecast()">Get 7-Day Forecast</button>
+    <button onclick="getCurrentWeather()">Get Current Weather</button>
+
+    <div class="forecast" id="forecast"></div>
+    <div class="current-weather" id="current-weather"></div>
+
+    <script>
+        async function getForecast() {
+            const city = document.getElementById('city').value;
+            const response = await fetch(`/api/weather/${city}`);
+            const data = await response.json();
+            const forecastDiv = document.getElementById('forecast');
+            forecastDiv.innerHTML = '';
+
+            if (data.error) {
+                forecastDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+                return;
+            }
+
+            for (const [date, forecast] of Object.entries(data)) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'day';
+                dayDiv.innerHTML = `<strong>${date}</strong>: ${forecast.temperature}°C, ${forecast.weather_descriptions[0]}`;
+                forecastDiv.appendChild(dayDiv);
+            }
+        }
+
+        async function getCurrentWeather() {
+            const city = document.getElementById('city').value;
+            const response = await fetch(`/api/current/${city}`);
+                        const data = await response.json();
+            const currentWeatherDiv = document.getElementById('current-weather');
+            currentWeatherDiv.innerHTML = '';
+
+            if (data.error) {
+                currentWeatherDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+                return;
+            }
+
+            const currentDiv = document.createElement('div');
+            currentDiv.className = 'current';
+            currentDiv.innerHTML = `
+                <strong>Current Weather:</strong><br>
+                Temperature: ${data.temperature}°C<br>
+                Weather: ${data.weather_descriptions[0]}<br>
+                Humidity: ${data.humidity}%<br>
+                Wind Speed: ${data.wind_speed} km/h
+            `;
+            currentWeatherDiv.appendChild(currentDiv);
+        }
+    </script>
+</body>
+</html>
